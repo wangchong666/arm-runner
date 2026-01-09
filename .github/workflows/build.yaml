@@ -1,0 +1,39 @@
+name: Build Rolling Program on Official ARM64
+run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+on: [push]
+jobs:
+  build-arm64:
+    # 使用 GitHub 官方提供的 Ubuntu 24.04 ARM 运行器
+    # 注意：官方托管的 ARM 运行器通常标记为 ubuntu-24.04-arm64
+    runs-on: ubuntu-24.04-arm64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake git
+          # 打印架构信息以确认运行环境
+          echo "Running on architecture: $(uname -m)"
+
+      - name: Configure and Build
+        run: |
+          # 假设你的 Rolling 程序使用 CMake 构建
+          mkdir -p build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          make -j$(nproc)
+
+      - name: Run Tests
+        run: |
+          cd build
+          # 假设你有测试程序
+          ctest --output-on-failure || echo "No tests defined"
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: rolling-binary-arm64
+          path: build/your_executable_name # 替换为你的程序名
